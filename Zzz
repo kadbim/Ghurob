@@ -1,39 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>MBG</title>
-
-<style>
-body{
-  margin:0;
-  background:black;
-  overflow:hidden;
-  font-family:monospace;
-}
-
-/* BACKGROUND FIX */
-.bg{
-  position:fixed;
-  width:100%;
-  height:100%;
-  object-fit:contain; /* biar gak kepotong */
-  object-position:center;
-  background:black;
-  transition:transform 0.2s ease;
-}
-
-/* TEXT */
-.text{
-  position:absolute;
-  top:5%;
-  width:100%;
-  text-align:center;
-  font-size:40px;
-  color:red;
-  text-shadow:0 0 10px red;
-}
-
 /* BUTTON */
 .btn{
   position:absolute;
