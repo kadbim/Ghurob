@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>DJ MODE</title>
+
+<style>
+body{margin:0;background:black;overflow:hidden;font-family:monospace;}
+.bg{position:fixed;width:100%;height:100%;object-fit:cover;}
+.text{position:absolute;top:5%;width:100%;text-align:center;font-size:40px;color:red;text-shadow:0 0 10px red;}
+.btn{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);padding:15px 40px;font-size:20px;display:none;}
+.flash{position:fixed;width:100%;height:100%;background:white;opacity:0;}
+</style>
+</head>
+
+<body>
+
+<img id="bg" class="bg">
+<div class="flash"></div>
+
+<div class="text" id="text"></div>
+<button class="btn" id="btn">PLAY</button>
+
+<audio id="music" src="free.mp3"></audio>
+
+<script>
+const imgs=["1.png","2.png","3.png"];
+document.getElementById("bg").src=imgs[Math.floor(Math.random()*imgs.length)];
+
+let txt="thank sudah melempar mbg";
+let i=0;
+
+function type(){
+ if(i<txt.length){
+  document.getElementById("text").innerHTML+=txt[i]==" "?"&nbsp;":txt[i];
+  i++;
+  setTimeout(type,80);
+ }else{
+  document.getElementById("btn").style.display="block";
+ }
+}
+type();
+
+document.getElementById("btn").onclick=()=>{
+ let a=document.getElementById("music");
+ let ctx=new AudioContext();
+ let src=ctx.createMediaElementSource(a);
+ let analyser=ctx.createAnalyser();
+
+ src.connect(analyser);
+ analyser.connect(ctx.destination);
+
+ let data=new Uint8Array(analyser.frequencyBinCount);
+ a.play();
+
+ function loop(){
+  analyser.getByteFrequencyData(data);
+  let bass=data[1];
+
+  document.getElementById("bg").style.transform=`scale(${1+bass/500})`;
+
+  if(bass>150){
+    let f=document.querySelector(".flash");
+    f.style.opacity=0.5;
+    setTimeout(()=>f.style.opacity=0,80);
+  }
+
+  requestAnimationFrame(loop);
+ }
+ loop();
+};
+</script>
+
+</body>
+</html>
