@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>shoyou gabut</title>
+<title>Shoyou gabut</title>
 
 <style>
 body{
@@ -12,29 +12,150 @@ body{
   font-family:monospace;
 }
 
-/* BACKGROUND BLUR (FULL LAYAR) */
+/* BACKGROUND BLUR */
 .bg-blur{
   position:fixed;
   width:100%;
   height:100%;
   object-fit:cover;
   filter:blur(25px) brightness(0.6);
-  transform:scale(1.2); /* biar blur gak pinggir kosong */
+  transform:scale(1.2);
   z-index:0;
   transition:transform 0.2s ease;
 }
 
-/* GAMBAR DEPAN (TAJAM, GAK KEPOTONG) */
+/* GAMBAR DEPAN */
 .bg-front{
   position:fixed;
   top:50%;
   left:50%;
   transform:translate(-50%, -50%);
-  
   max-width:100%;
   max-height:100%;
-  
   width:auto;
+  height:auto;
+  z-index:1;
+  transition:transform 0.2s ease;
+}
+
+/* TEXT */
+.text{
+  position:absolute;
+  top:5%;
+  width:100%;
+  text-align:center;
+  font-size:40px;
+  color:red;
+  text-shadow:0 0 10px red;
+  z-index:2;
+}
+
+/* BUTTON */
+.btn{
+  position:absolute;
+  bottom:80px;
+  left:50%;
+  transform:translateX(-50%);
+  padding:15px 40px;
+  font-size:20px;
+  display:none;
+  cursor:pointer;
+  z-index:2;
+}
+
+/* FLASH */
+.flash{
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:white;
+  opacity:0;
+  transition:opacity 0.1s;
+  z-index:3;
+}
+</style>
+</head>
+
+<body>
+
+<img id="bgBlur" class="bg-blur">
+<img id="bgFront" class="bg-front">
+
+<div class="flash"></div>
+<div class="text" id="text"></div>
+<button class="btn" id="btn">PLAY</button>
+
+<audio id="music" src="free.mp3" preload="auto"></audio>
+
+<script>
+const imgs = ["1.png","2.png","3.png"];
+let chosen = imgs[Math.floor(Math.random()*imgs.length)];
+
+document.getElementById("bgBlur").src = chosen;
+document.getElementById("bgFront").src = chosen;
+
+let txt = "thank sudah melempar mbg";
+let i = 0;
+
+function type(){
+  if(i < txt.length){
+    document.getElementById("text").innerHTML += txt[i]==" "?"&nbsp;":txt[i];
+    i++;
+    setTimeout(type,80);
+  } else {
+    document.getElementById("btn").style.display="block";
+  }
+}
+type();
+
+document.getElementById("btn").onclick = async () => {
+  let a = document.getElementById("music");
+
+  let ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+  // FIX HP
+  if (ctx.state === "suspended") {
+    await ctx.resume();
+  }
+
+  let src = ctx.createMediaElementSource(a);
+  let analyser = ctx.createAnalyser();
+
+  src.connect(analyser);
+  analyser.connect(ctx.destination);
+
+  let data = new Uint8Array(analyser.frequencyBinCount);
+
+  // play aman
+  a.play().catch(err => console.log(err));
+
+  function loop(){
+    analyser.getByteFrequencyData(data);
+    let bass = data[1];
+
+    // zoom depan
+    document.getElementById("bgFront").style.transform =
+      `translate(-50%, -50%) scale(${1 + bass/800})`;
+
+    // zoom blur
+    document.getElementById("bgBlur").style.transform =
+      `scale(${1.2 + bass/600})`;
+
+    // flash
+    if(bass > 150){
+      let f = document.querySelector(".flash");
+      f.style.opacity = 0.4;
+      setTimeout(()=>f.style.opacity=0,80);
+    }
+
+    requestAnimationFrame(loop);
+  }
+  loop();
+};
+</script>
+
+</body>
+</html>  width:auto;
   height:auto;
 
   z-index:1;
